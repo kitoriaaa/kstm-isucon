@@ -1,0 +1,7 @@
+~;jetty:stop;jetty:start
+jetty:start
+start
+jetty:start
+exit
+jetty:start
+exit

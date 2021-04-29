@@ -1,0 +1,7 @@
+[0m[[0m[31merror[0m] [0m[0mTerminating watch due to invalid command(s): 'Expected ';'[0m
+[0m[[0m[31merror[0m] [0m[0mNot a valid key: stop (similar: bgStop, test, history)[0m
+[0m[[0m[31merror[0m] [0m[0mjetty:stop[0m
+[0m[[0m[31merror[0m] [0m[0m          ^', 'Expected ';'[0m
+[0m[[0m[31merror[0m] [0m[0mNot a valid key: start (similar: state, startYear, target)[0m
+[0m[[0m[31merror[0m] [0m[0mjetty:start[0m
+[0m[[0m[31merror[0m] [0m[0m           ^'[0m
