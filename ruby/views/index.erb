@@ -17,8 +17,11 @@
             <p><%= product[:price] %>円</p>
             <h4>商品説明</h4>
             <p><%= product[:description][0..69] %>…</p>
-            <% comments = db.xquery(cmt_query, product[:id]) %>
-            <% comments_count = db.xquery(cmt_count_query, product[:id]).first[:count] %>
+
+            <% comments = cmt.select {|item| item[:product_id] == product[:id] } %>
+            <% comments_count = comments.size %>
+            <% comments = comments[1..5]%>
+
             <h4><%= comments_count %>件のレビュー</h4>
             <ul>
               <% comments.each do |comment| %>

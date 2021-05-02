@@ -73,7 +73,7 @@ class Ishocon1::WebApp < Sinatra::Base
     def already_bought?(product_id)
       return false unless current_user
       count = db.xquery('SELECT count(*) as count FROM histories WHERE product_id = ? AND user_id = ?', \
-                        product_id, current_user[:id]).first[:count]
+                        product_id.to_i, current_user[:id].to_i).first[:count]
       count > 0
     end
 
@@ -112,18 +112,19 @@ class Ishocon1::WebApp < Sinatra::Base
   get '/' do
     page = params[:page].to_i || 0
     products = db.xquery("SELECT * FROM products ORDER BY id DESC LIMIT 50 OFFSET #{page * 50}")
+    id_list = products.map { |item| item[:id] }
     cmt_query = <<SQL
 SELECT *
 FROM comments as c
 INNER JOIN users as u
 ON c.user_id = u.id
-WHERE c.product_id = ?
+WHERE 
+c.product_id IN (#{id_list.join(',')})
 ORDER BY c.created_at DESC
-LIMIT 5
 SQL
-    cmt_count_query = 'SELECT count(*) as count FROM comments WHERE product_id = ?'
+    cmt = db.query(cmt_query)
 
-    erb :index, locals: { products: products, cmt_query: cmt_query, cmt_count_query: cmt_count_query }
+    erb :index, locals: { products: products, cmt: cmt}
   end
 
   get '/users/:user_id' do
@@ -135,20 +136,20 @@ ON h.product_id = p.id
 WHERE h.user_id = ?
 ORDER BY h.id DESC
 SQL
-    products = db.xquery(products_query, params[:user_id])
+    products = db.xquery(products_query, params[:user_id].to_i)
 
     total_pay = 0
     products.each do |product|
       total_pay += product[:price]
     end
 
-    user = db.xquery('SELECT * FROM users WHERE id = ?', params[:user_id]).first
+    user = db.xquery('SELECT id, name FROM users WHERE id = ?', params[:user_id].to_i).first
     erb :mypage, locals: { products: products, user: user, total_pay: total_pay }
   end
 
   get '/products/:product_id' do
-    product = db.xquery('SELECT * FROM products WHERE id = ?', params[:product_id]).first
-    comments = db.xquery('SELECT * FROM comments WHERE product_id = ?', params[:product_id])
+    product = db.xquery('SELECT * FROM products WHERE id = ?', params[:product_id].to_i).first
+    comments = db.xquery('SELECT * FROM comments WHERE product_id = ?', params[:product_id].to_i)
     erb :product, locals: { product: product, comments: comments }
   end
 
