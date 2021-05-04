@@ -134,7 +134,7 @@ SQL
 
   get '/users/:user_id' do
     products_query = <<SQL
-SELECT p.id, p.name, p.description, p.image_path, p.price, h.created_at
+SELECT p.id, p.name, SUBSTRING(p.description, 1, 71) as description, p.image_path, p.price, h.created_at
 FROM histories as h
 LEFT OUTER JOIN products as p
 ON h.product_id = p.id
