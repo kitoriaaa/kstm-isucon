@@ -50,6 +50,7 @@ class Ishocon1::WebApp < Sinatra::Base
     def authenticate(email, password)
       user = db.xquery('SELECT * FROM users WHERE email = ?', email).first
       fail Ishocon1::AuthenticationError unless user.nil? == false && user[:password] == password
+      session[:user_name] = user[:name]
       session[:user_id] = user[:id]
     end
 
@@ -58,7 +59,11 @@ class Ishocon1::WebApp < Sinatra::Base
     end
 
     def current_user
-      db.xquery('SELECT * FROM users WHERE id = ?', session[:user_id]).first
+      return unless session[:user_id] && session[:user_name]
+      {
+        :name => session[:user_name],
+        :id => session[:user_id]
+      }
     end
 
     def update_last_login(user_id)
@@ -138,10 +143,11 @@ ORDER BY h.id DESC
 SQL
     products = db.xquery(products_query, params[:user_id].to_i)
 
-    total_pay = 0
-    products.each do |product|
-      total_pay += product[:price]
-    end
+    # total_pay = 0
+    # products.each do |product|
+    #   total_pay += product[:price]
+    # end
+    total_pay = products.inject(0) { |res, product| res+product[:price] }
 
     user = db.xquery('SELECT id, name FROM users WHERE id = ?', params[:user_id].to_i).first
     erb :mypage, locals: { products: products, user: user, total_pay: total_pay }
@@ -149,8 +155,9 @@ SQL
 
   get '/products/:product_id' do
     product = db.xquery('SELECT * FROM products WHERE id = ?', params[:product_id].to_i).first
-    comments = db.xquery('SELECT * FROM comments WHERE product_id = ?', params[:product_id].to_i)
-    erb :product, locals: { product: product, comments: comments }
+    # comments = db.xquery('SELECT * FROM comments WHERE product_id = ?', params[:product_id].to_i)
+    # erb :product, locals: { product: product, comments: comments }
+    erb :product, locals: { product: product }
   end
 
   post '/products/buy/:product_id' do
