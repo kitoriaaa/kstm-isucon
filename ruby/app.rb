@@ -140,23 +140,18 @@ LEFT OUTER JOIN products as p
 ON h.product_id = p.id
 WHERE h.user_id = ?
 ORDER BY h.id DESC
+LIMIT 30
 SQL
     products = db.xquery(products_query, params[:user_id].to_i)
 
-    # total_pay = 0
-    # products.each do |product|
-    #   total_pay += product[:price]
-    # end
-    total_pay = products.inject(0) { |res, product| res+product[:price] }
+    total_pay = db.xquery('SELECT SUM(p.price) as total FROM histories as h INNER JOIN products as p ON h.product_id = p.id WHERE h.user_id = ?', params[:user_id].to_i).first
 
     user = db.xquery('SELECT id, name FROM users WHERE id = ?', params[:user_id].to_i).first
-    erb :mypage, locals: { products: products, user: user, total_pay: total_pay }
+    erb :mypage, locals: { products: products, user: user, total_pay: total_pay[:total] }
   end
 
   get '/products/:product_id' do
     product = db.xquery('SELECT * FROM products WHERE id = ?', params[:product_id].to_i).first
-    # comments = db.xquery('SELECT * FROM comments WHERE product_id = ?', params[:product_id].to_i)
-    # erb :product, locals: { product: product, comments: comments }
     erb :product, locals: { product: product }
   end
 
