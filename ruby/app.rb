@@ -116,7 +116,8 @@ class Ishocon1::WebApp < Sinatra::Base
 
   get '/' do
     page = params[:page].to_i || 0
-    products = db.xquery("SELECT * FROM products ORDER BY id DESC LIMIT 50 OFFSET #{page * 50}")
+    now_offset = page*50
+    products = db.xquery("SELECT * FROM products WHERE ? >= id AND id > ? ORDER BY id DESC", 10000-now_offset, 10000-now_offset-50)
     id_list = products.map { |item| item[:id] }
     cmt_query = <<SQL
 SELECT *
