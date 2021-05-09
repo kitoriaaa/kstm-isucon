@@ -104,14 +104,15 @@ class Ishocon1::WebApp < Sinatra::Base
 
   post '/login' do
     authenticate(params['email'], params['password'])
-    update_last_login(current_user[:id])
+    # update_last_login(current_user[:id])
     redirect '/'
   end
 
   get '/logout' do
     session[:user_id] = nil
     session.clear
-    redirect '/login'
+    erb :login, layout: false, locals: { message: 'ECサイトで爆買いしよう！！！！' }
+    # redirect '/login'
   end
 
   get '/' do
